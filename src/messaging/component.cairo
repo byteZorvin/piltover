@@ -52,8 +52,8 @@ mod messaging_cpt {
     use starknet::ContractAddress;
     use super::errors;
 
-    type MessageHash = felt252;
-    type Nonce = felt252;
+    pub type MessageHash = felt252;
+    pub type Nonce = felt252;
 
     #[storage]
     struct Storage {
