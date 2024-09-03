@@ -1,0 +1,9 @@
+[sncast.development]
+account = "braavosDev"
+accounts-file = "/Users/bytezorvin/.starknet_accounts/starknet_open_zeppelin_accounts.json"
+url = "https://starknet-sepolia.public.blastapi.io/rpc/v0_7"
+
+[sncast.katana]
+account = "katanaDev"
+accounts-file = "/Users/bytezorvin/.starknet_accounts/starknet_open_zeppelin_accounts.json"
+url = "http://0.0.0.0:5050"
