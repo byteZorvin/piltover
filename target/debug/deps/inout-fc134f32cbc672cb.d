@@ -1,0 +1,11 @@
+/Users/bytezorvin/work/karnot/piltover/target/debug/deps/libinout-fc134f32cbc672cb.rmeta: /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/lib.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/errors.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout_buf.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/reserved.rs
+
+/Users/bytezorvin/work/karnot/piltover/target/debug/deps/libinout-fc134f32cbc672cb.rlib: /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/lib.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/errors.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout_buf.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/reserved.rs
+
+/Users/bytezorvin/work/karnot/piltover/target/debug/deps/inout-fc134f32cbc672cb.d: /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/lib.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/errors.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout_buf.rs /Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/reserved.rs
+
+/Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/lib.rs:
+/Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/errors.rs:
+/Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout.rs:
+/Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/inout_buf.rs:
+/Users/bytezorvin/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/inout-0.1.3/src/reserved.rs:
