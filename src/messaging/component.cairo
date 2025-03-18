@@ -239,6 +239,8 @@ pub mod messaging_cpt {
                 from, to_address, selector, payload, nonce,
             );
 
+            println!("message_hash in piltover: {}", message_hash);
+
             match self.sn_to_appc_messages.read(message_hash) {
                 MessageToAppchainStatus::Pending(_) => {},
                 _ => assert(false, errors::NO_MESSAGE_TO_CANCEL),
