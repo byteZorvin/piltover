@@ -135,6 +135,14 @@ pub mod appchain {
         self.state.initialize(state_root, block_number, block_hash);
     }
 
+    #[external(v0)]
+    fn set_state(
+        ref self: ContractState, state_root: felt252, block_number: felt252, block_hash: felt252,
+    ) {
+        self.ownable.assert_only_owner();
+        self.state.initialize(state_root, block_number, block_hash);
+    }
+
     #[abi(embed_v0)]
     impl Appchain of IAppchain<ContractState> {
         fn update_state(
