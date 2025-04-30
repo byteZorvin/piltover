@@ -67,10 +67,17 @@ pub mod state_cpt {
         ) {
             let mut new_length = snos_output.len();
             let final_index = from_index + new_length.into();
-            for i in from_index..final_index {
+
+            let current_len = self.snos_output.len();
+            for i in from_index..current_len {
                 let storage_pointer = self.snos_output.at(i);
                 storage_pointer.write(*snos_output[i.try_into().unwrap()]);
-            }
+            };
+
+            for i in current_len..final_index {
+                let x = self.snos_output.append();
+                x.write(*snos_output[i.try_into().unwrap()]);
+            };
         }
 
         fn get_snos_output(
