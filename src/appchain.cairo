@@ -242,7 +242,7 @@ pub mod appchain {
             let mut snos_output_stored = array![];
             if from_index > 0 {
                 snos_output_stored = self.state.get_snos_output(from_index - 1);
-                for i in 0..snos_output_stored.len() {
+                for i in 0..snos_output.len() {
                     snos_output_stored.append(*snos_output.at(i));
                 };
             } else {
