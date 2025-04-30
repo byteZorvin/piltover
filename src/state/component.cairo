@@ -63,20 +63,23 @@ pub mod state_cpt {
         }
 
         fn store_snos_output(
-            ref self: ComponentState<TContractState>, snos_output: Span<felt252>, from_index: u64,
+            ref self: ComponentState<TContractState>, _snos_output: Span<felt252>, from_index: u64,
         ) {
-            let mut new_length = snos_output.len();
-            let final_index = from_index + new_length.into();
+            assert(from_index <= self.snos_output.len(), 'invalid from index');
 
+            let mut input_array_length: u64 = _snos_output.len().into();
             let current_len = self.snos_output.len();
-            for i in from_index..current_len {
-                let storage_pointer = self.snos_output.at(i);
-                storage_pointer.write(*snos_output[i.try_into().unwrap()]);
-            };
 
-            for i in current_len..final_index {
-                let x = self.snos_output.append();
-                x.write(*snos_output[i.try_into().unwrap()]);
+            for i in 0..input_array_length {
+            
+                let current_index = i + from_index;
+                if current_index < current_len {
+                    let storage_pointer = self.snos_output.at(current_index);
+                    storage_pointer.write(*_snos_output[i.try_into().unwrap()]);
+                } else {
+                    let x = self.snos_output.append();
+                    x.write(*_snos_output[i.try_into().unwrap()]);
+                }
             };
         }
 
@@ -84,13 +87,18 @@ pub mod state_cpt {
             self: @ComponentState<TContractState>, till_index: u64,
         ) -> Array<felt252> {
             let mut output = array![];
-            for i in 0..till_index + 1  {
+            for i in 0..till_index + 1 {
                 let value = self.snos_output.at(i).read();
                 output.append(value);
             };
             output
         }
+
+        fn getLength_of_snop(self: @ComponentState<TContractState>) -> u64 {
+            self.snos_output.len()
+        }
     }
+
 
     #[generate_trait]
     pub impl InternalImpl<
