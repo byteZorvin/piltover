@@ -84,7 +84,7 @@ pub mod state_cpt {
             self: @ComponentState<TContractState>, till_index: u64,
         ) -> Array<felt252> {
             let mut output = array![];
-            for i in 0..till_index {
+            for i in 0..till_index + 1  {
                 let value = self.snos_output.at(i).read();
                 output.append(value);
             };
