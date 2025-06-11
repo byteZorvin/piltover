@@ -2605,6 +2605,7 @@ pub enum MessageToAppchainStatus {
     Sealed,
     Cancelled,
     Pending(starknet::core::types::Felt),
+    Cancelling,
 }
 impl cainome::cairo_serde::CairoSerde for MessageToAppchainStatus {
     type RustType = Self;
@@ -2618,6 +2619,7 @@ impl cainome::cairo_serde::CairoSerde for MessageToAppchainStatus {
             MessageToAppchainStatus::Pending(val) => {
                 starknet::core::types::Felt::cairo_serialized_size(val) + 1
             }
+            MessageToAppchainStatus::Cancelling => 1,
             _ => 0,
         }
     }
@@ -2632,6 +2634,7 @@ impl cainome::cairo_serde::CairoSerde for MessageToAppchainStatus {
                 temp.extend(starknet::core::types::Felt::cairo_serialize(val));
                 temp
             }
+            MessageToAppchainStatus::Cancelling => usize::cairo_serialize(&4usize),
             _ => vec![],
         }
     }
@@ -2648,6 +2651,7 @@ impl cainome::cairo_serde::CairoSerde for MessageToAppchainStatus {
             3usize => Ok(MessageToAppchainStatus::Pending(
                 starknet::core::types::Felt::cairo_deserialize(__felts, __offset + 1)?,
             )),
+            4usize => Ok(MessageToAppchainStatus::Cancelling),
             _ => {
                 return Err(cainome::cairo_serde::Error::Deserialize(format!(
                     "Index not handle for enum {}",
@@ -4812,8 +4816,6 @@ impl<A: starknet::accounts::ConnectedAccount + Sync> AppchainContract<A> {
         &self,
         snos_output: &Vec<starknet::core::types::Felt>,
         layout_bridge_output: &Vec<starknet::core::types::Felt>,
-        onchain_data_hash: &starknet::core::types::Felt,
-        onchain_data_size: &cainome::cairo_serde::U256,
     ) -> starknet::core::types::Call {
         use cainome::cairo_serde::CairoSerde;
         let mut __calldata = vec![];
@@ -4822,12 +4824,6 @@ impl<A: starknet::accounts::ConnectedAccount + Sync> AppchainContract<A> {
         ));
         __calldata.extend(Vec::<starknet::core::types::Felt>::cairo_serialize(
             layout_bridge_output,
-        ));
-        __calldata.extend(starknet::core::types::Felt::cairo_serialize(
-            onchain_data_hash,
-        ));
-        __calldata.extend(cainome::cairo_serde::U256::cairo_serialize(
-            onchain_data_size,
         ));
         starknet::core::types::Call {
             to: self.address,
@@ -4841,8 +4837,6 @@ impl<A: starknet::accounts::ConnectedAccount + Sync> AppchainContract<A> {
         &self,
         snos_output: &Vec<starknet::core::types::Felt>,
         layout_bridge_output: &Vec<starknet::core::types::Felt>,
-        onchain_data_hash: &starknet::core::types::Felt,
-        onchain_data_size: &cainome::cairo_serde::U256,
     ) -> starknet::accounts::ExecutionV3<A> {
         use cainome::cairo_serde::CairoSerde;
         let mut __calldata = vec![];
@@ -4851,12 +4845,6 @@ impl<A: starknet::accounts::ConnectedAccount + Sync> AppchainContract<A> {
         ));
         __calldata.extend(Vec::<starknet::core::types::Felt>::cairo_serialize(
             layout_bridge_output,
-        ));
-        __calldata.extend(starknet::core::types::Felt::cairo_serialize(
-            onchain_data_hash,
-        ));
-        __calldata.extend(cainome::cairo_serde::U256::cairo_serialize(
-            onchain_data_size,
         ));
         let __call = starknet::core::types::Call {
             to: self.address,

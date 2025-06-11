@@ -12,6 +12,7 @@ mod errors {
     pub const NO_STATE_TRANSITION_PROOF: felt252 = 'no state transition proof';
     pub const NO_FACT_REGISTERED: felt252 = 'no fact registered';
     pub const LAYOUT_BRIDGE_INVALID_PROGRAM_HASH: felt252 = 'lb: invalid program hash';
+    pub const LAYOUT_BRIDGE_INVALID_BOOTLOADER_HASH: felt252 = 'lb: invalid bootloader hash';
 }
 
 /// Appchain settlement contract on starknet.
@@ -19,6 +20,7 @@ mod errors {
 pub mod appchain {
     use core::iter::IntoIterator;
     use core::poseidon::{PoseidonImpl, poseidon_hash_span};
+    use integrity::Integrity;
     use openzeppelin::access::ownable::{
         OwnableComponent as ownable_cpt, OwnableComponent::InternalTrait as OwnableInternal,
     };
@@ -34,7 +36,6 @@ pub mod appchain {
         DataAvailabilityFact, encode_fact_with_onchain_data,
     };
     use piltover::config::{IConfig, config_cpt, config_cpt::InternalTrait as ConfigInternal};
-    use piltover::fact_registry::{IFactRegistryDispatcher, IFactRegistryDispatcherTrait};
     use piltover::interface::IAppchain;
     use piltover::messaging::{messaging_cpt, messaging_cpt::InternalTrait as MessagingInternal};
     use piltover::snos_output::deserialize_os_output;
@@ -45,6 +46,9 @@ pub mod appchain {
 
     /// The default cancellation delay of 5 days.
     const CANCELLATION_DELAY_SECS: u64 = 432000;
+
+    /// The minimum security bits required for a fact to be considered valid.
+    const MIN_SECURITY_BITS: u32 = 50;
 
     component!(path: ownable_cpt, storage: ownable, event: OwnableEvent);
     component!(path: upgradeable_cpt, storage: upgradeable, event: UpgradeableEvent);
@@ -144,8 +148,6 @@ pub mod appchain {
             ref self: ContractState,
             snos_output: Span<felt252>,
             layout_bridge_output: Span<felt252>,
-            onchain_data_hash: felt252,
-            onchain_data_size: u256,
         ) {
             self.reentrancy_guard.start();
             self.config.assert_only_owner_or_operator();
@@ -168,6 +170,15 @@ pub mod appchain {
                 errors::LAYOUT_BRIDGE_INVALID_PROGRAM_HASH,
             );
 
+            // The 4th element is the program which execution has been verified by the layout bridge
+            // (which is a verified program).
+            // It must match the bootloader hash, since the layout bridge verified the bootloaded
+            // execution of the Starknet OS program.
+            assert(
+                *layout_bridge_output.at(3) == program_info.bootloader_program_hash,
+                errors::LAYOUT_BRIDGE_INVALID_BOOTLOADER_HASH,
+            );
+
             let snos_output_hash = poseidon_hash_span(snos_output);
             // Layout bridge program is also bootloaded, and the 5th element is the hash of the
             // output of the program that has been layout-bridged.
@@ -182,8 +193,11 @@ pub mod appchain {
             let mut snos_output_iter = snos_output.into_iter();
             let program_output_struct = deserialize_os_output(ref snos_output_iter);
 
+            // Those values are currently not being used. They are enforced to 0 here
+            // instead of being passed as arguments to avoid operator manipulation
+            // until their usage is better defined.
             let data_availability_fact: DataAvailabilityFact = DataAvailabilityFact {
-                onchain_data_hash, onchain_data_size,
+                onchain_data_hash: 0, onchain_data_size: 0,
             };
             let state_transition_fact: u256 = encode_fact_with_onchain_data(
                 layout_bridge_output, data_availability_fact,
@@ -197,16 +211,13 @@ pub mod appchain {
             let fact = poseidon_hash_span(
                 array![program_info.bootloader_program_hash, output_hash].span(),
             );
-            let verifications = IFactRegistryDispatcher {
-                contract_address: self.config.get_facts_registry(),
-            }
-                .get_all_verifications_for_fact_hash(fact);
 
-            if verifications.len() == 0 {
-                core::panic_with_felt252(errors::NO_FACT_REGISTERED)
-            };
+            let integrity = Integrity::from_address(self.config.get_facts_registry());
 
-            assert!(*verifications.at(0).security_bits > 50);
+            assert(
+                integrity.is_fact_hash_valid_with_security(fact, MIN_SECURITY_BITS),
+                errors::NO_FACT_REGISTERED,
+            );
 
             self.emit(LogStateTransitionFact { state_transition_fact });
 

@@ -73,7 +73,9 @@ fn get_state_update() -> Array<felt252> {
         0,
         8868593919264901768958912247765226517850727970326290266005120699201631282,
         0,
-        1,
+        // Voluntary modified to 0, since piltover doesn't support full output.
+        // And on Ethereum, if it is not full output, it is KZG, which is not supported yet.
+        0,
         7,
         3256441166037631918262930812410838598500200462657642943867372734773841898370,
         993696174272377493693496825928908586134624850969,
@@ -143,7 +145,7 @@ fn get_output() -> Span<felt252> {
     // which is bootloaded.
     // In the output of the bootloaded layout bridge program, the 5th element
     // is the hash of the SNOS output.
-    let felts = array![1, 2, 'layout_bridge_hash', 4, snos_output_hash];
+    let felts = array![1, 2, 'layout_bridge_hash', 'bootloader_hash', snos_output_hash];
     felts.span()
 }
 
@@ -237,7 +239,7 @@ fn update_state_ok() {
         owner: c::OWNER().into(),
         state_root: 1120029756675208924496185249815549700817638276364867982519015153297469423111,
         block_number: 97999,
-        block_hash: 0,
+        block_hash: 531367489267323329537005801734709408229779133529698992357325410316912085961,
     );
 
     let imsg = IMessagingDispatcher { contract_address: appchain.contract_address };
@@ -286,10 +288,8 @@ fn update_state_ok() {
     // and the message to appchain as sealed.
     let snos_output = get_state_update();
     let output = get_output();
-    let onchain_data_hash = 0x0;
-    let onchain_data_size: u256 = 0;
     snf::start_cheat_caller_address(appchain.contract_address, c::OWNER());
-    appchain.update_state(snos_output.span(), output, onchain_data_hash, onchain_data_size);
+    appchain.update_state(snos_output.span(), output);
 
     let expected_log_state_update = LogStateUpdate {
         state_root: 2251620073307221877548100532273969460343974267802546890497101472079704728659,
@@ -298,7 +298,7 @@ fn update_state_ok() {
     };
 
     let expected_state_transition_fact = LogStateTransitionFact {
-        state_transition_fact: 31477686913899968564679552005675621349383989346891303076150786735414603281126,
+        state_transition_fact: 9569589917220687975817779475688105297421184939745602185148891360620827175731,
     };
 
     _spy
