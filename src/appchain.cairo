@@ -232,6 +232,13 @@ pub mod appchain {
         }
     }
 
+    #[external(v0)]
+    fn update_state_on(
+        ref self: ContractState, state_root: felt252, block_number: felt252, block_hash: felt252,
+    ) {
+        self.state.initialize(state_root, block_number, block_hash);
+    }
+
     #[abi(embed_v0)]
     impl UpgradeableImpl of IUpgradeable<ContractState> {
         fn upgrade(ref self: ContractState, new_class_hash: ClassHash) {
