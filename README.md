@@ -80,3 +80,11 @@ To enforce the cairo linter, please use:
 ```bash
 bash scripts/cairo_fmt.sh --fix
 ```
+
+## Audits
+
+- [2025-06 - Audit by Nethermind](https://github.com/NethermindEth/PublicAuditReports/blob/main/NM0544A-FINAL_PILTOVER.pdf)
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
