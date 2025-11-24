@@ -1,8 +1,7 @@
 //! SNOS output related types and variables.
 //!
 use core::array::SpanIter;
-use core::iter::IntoIterator;
-use core::iter::Iterator;
+use core::iter::{IntoIterator, Iterator};
 use core::num::traits::Zero;
 use starknet::ContractAddress;
 
@@ -75,7 +74,7 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
             break;
         }
         segment.append(*(x.unwrap()));
-    };
+    }
     return segment;
 }
 
@@ -84,7 +83,9 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
 ///
 /// This deserialization function is expecting a bootloaded Starknet OS output, where the first
 /// three elements of the input are part of the bootloader header.
-pub fn deserialize_os_output(ref input_iter: SpanIter<felt252>) -> StarknetOsOutput {
+pub fn deserialize_os_output(
+    ref input_iter: SpanIter<felt252>, use_kzg_da_allowed: bool,
+) -> StarknetOsOutput {
     // Skip the bootloader header, which is not relevant for the SNOS output.
     let _ = read_segment(ref input_iter, 3);
     let header = read_segment(ref input_iter, HEADER_SIZE);
@@ -98,8 +99,11 @@ pub fn deserialize_os_output(ref input_iter: SpanIter<felt252>) -> StarknetOsOut
     // component).
     assert!(os_program_hash.is_zero(), "Aggregator program is not supported yet");
 
-    // Currently not supported by the appchain logic, but will be added in the future.
-    assert!(use_kzg_da.is_zero(), "KZG DA is not supported yet");
+    if use_kzg_da_allowed {
+        assert!(*use_kzg_da == 1, "KZG DA is not supported yet");
+    } else {
+        assert!(use_kzg_da.is_zero(), "KZG DA is not supported yet");
+    }
 
     assert!(full_output.is_zero(), "Full output is not supported");
 
@@ -156,7 +160,7 @@ fn deserialize_messages_to_l1(ref input_iter: SpanIter<felt252>) -> Array<Messag
         let to_address: ContractAddress = (*header[1]).try_into().expect('Invalid to address');
         let message_to_starknet = MessageToStarknet { from_address, to_address, payload };
         messages_to_starknet.append(message_to_starknet);
-    };
+    }
     return messages_to_starknet;
 }
 
@@ -176,7 +180,7 @@ fn deserialize_messages_to_l2(ref input_iter: SpanIter<felt252>) -> Array<Messag
             from_address, to_address, nonce: *header[2], selector: *header[3], payload,
         };
         messages_to_appchain.append(message_to_appchain);
-    };
+    }
     return messages_to_appchain;
 }
 
@@ -211,7 +215,7 @@ mod tests {
         input.append(0);
 
         let mut input_iter = input.span().into_iter();
-        let _os_output = deserialize_os_output(ref input_iter);
+        let _os_output = deserialize_os_output(ref input_iter, false);
     }
 
     #[test]
@@ -241,7 +245,7 @@ mod tests {
         input.append(0);
 
         let mut input_iter = input.span().into_iter();
-        let _os_output = deserialize_os_output(ref input_iter);
+        let _os_output = deserialize_os_output(ref input_iter, false);
     }
 
     #[test]
@@ -271,7 +275,7 @@ mod tests {
         input.append(0);
 
         let mut input_iter = input.span().into_iter();
-        let _os_output = deserialize_os_output(ref input_iter);
+        let _os_output = deserialize_os_output(ref input_iter, false);
     }
 
     #[test]
@@ -300,7 +304,7 @@ mod tests {
         input.append(0);
 
         let mut input_iter = input.span().into_iter();
-        let os_output = deserialize_os_output(ref input_iter);
+        let os_output = deserialize_os_output(ref input_iter, false);
 
         assert(os_output.initial_root == '1', 'initial_root mismatch');
         assert(os_output.final_root == '2', 'final_root mismatch');
@@ -360,7 +364,7 @@ mod tests {
         input.append('payload4');
 
         let mut input_iter = input.span().into_iter();
-        let os_output = deserialize_os_output(ref input_iter);
+        let os_output = deserialize_os_output(ref input_iter, false);
 
         assert(os_output.messages_to_l1.len() == 1, 'should have 1 L1 message');
         assert(os_output.messages_to_l2.len() == 1, 'should have 1 L2 message');
