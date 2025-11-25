@@ -80,7 +80,7 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
 
 
 /// # Description
-/// 
+///
 /// Skips the KZG information to the messages offset.
 ///
 /// # Arguments
@@ -129,7 +129,7 @@ pub fn deserialize_os_output(
 
     assert!(full_output.is_zero(), "Full output is not supported");
 
-    // Skip kzg blob commitments and point evaluations  
+    // Skip kzg blob commitments and point evaluations
     skip_to_message_offset(ref input_iter, *use_kzg_da);
 
     let (messages_to_l1, messages_to_l2) = deserialize_messages(ref input_iter);
