@@ -78,6 +78,28 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
     return segment;
 }
 
+
+/// # Description
+/// 
+/// Skips the KZG information to the messages offset.
+///
+/// # Arguments
+///
+/// * `input_iter` - The input iterator.
+/// * `use_kzg_da` - Whether KZG DA is used.
+pub fn skip_to_message_offset(ref input_iter: SpanIter<felt252>, use_kzg_da: felt252) {
+    if use_kzg_da == 0 {
+        return;
+    }
+
+    // Point + nBlobs
+    let n_blobs_header = read_segment(ref input_iter, 1 + 1);
+    let n_blobs: usize = (*n_blobs_header[KZG_N_BLOBS_OFFSET]).try_into().expect('Invalid n_blobs');
+
+    let _commitments = read_segment(ref input_iter, 2 * n_blobs);
+    let _evaluations = read_segment(ref input_iter, 2 * n_blobs);
+}
+
 /// Custom deserialization function, inspired by
 /// https://github.com/starkware-libs/cairo-lang/blob/8e11b8cc65ae1d0959328b1b4a40b92df8b58595/src/starkware/starknet/core/aggregator/output_parser.py.
 ///
@@ -106,6 +128,9 @@ pub fn deserialize_os_output(
     }
 
     assert!(full_output.is_zero(), "Full output is not supported");
+
+    // Skip kzg blob commitments and point evaluations  
+    skip_to_message_offset(ref input_iter, *use_kzg_da);
 
     let (messages_to_l1, messages_to_l2) = deserialize_messages(ref input_iter);
 
