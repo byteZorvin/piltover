@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2024_07"
 
 [dependencies]
-starknet = "2.9.2"
+starknet = "2.13.1"
 openzeppelin = "0.20.0"
 integrity = "2.0.0"
 
