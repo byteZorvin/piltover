@@ -79,14 +79,23 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
 }
 
 
-/// # Description
-///
 /// Skips the KZG information to the messages offset.
 ///
 /// # Arguments
-///
 /// * `input_iter` - The input iterator.
 /// * `use_kzg_da` - Whether KZG DA is used.
+///
+/// Privacy use case: When running with KZG DA enabled, the SNOS output does not contain the
+/// state diff. When performing state updates with call data, this configuration effectively
+/// replicates private DA functionality. Hence commitments and evaluations are read but not
+/// verified here, as they are not required for the private DA use case.
+///
+/// TODO: When adding alt DA support, we should verify the commitments here based on the DA type.
+/// This could be using:
+/// - An enum AltDaType (e.g., Celestia, Private, etc.)
+/// - Conditional verification logic based on the DA type
+/// - For public DA types (like Celestia), verify commitments against the DA layer
+/// - For Private DA, skip verification as we do now
 pub fn skip_to_message_offset(ref input_iter: SpanIter<felt252>, use_kzg_da: felt252) {
     if use_kzg_da == 0 {
         return;
