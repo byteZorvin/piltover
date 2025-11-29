@@ -479,7 +479,13 @@ mod tests {
         // point.
         input.append(1);
         // n_blobs.
-        input.append(0);
+        input.append(1);
+        // commitments.
+        input.append(1);
+        input.append(1);
+        // evaluations.
+        input.append(1);
+        input.append(1);
 
         // Add 1 message to L1 (segment length).
         input.append(5);
