@@ -81,6 +81,9 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
 
 /// Skips the KZG information to the messages offset.
 ///
+/// This function is inspired by the Solidity implementation:
+/// https://github.com/starkware-libs/cairo-lang/blob/c382295ee557c30ee10366f7599ccf5af9992bc0/src/starkware/starknet/solidity/Output.sol#L58-L82
+///
 /// # Arguments
 /// * `input_iter` - The input iterator.
 /// * `use_kzg_da` - Whether KZG DA is used.
@@ -94,19 +97,21 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
 /// This could be using:
 /// - An enum AltDaType (e.g., Celestia, Private, etc.)
 /// - Conditional verification logic based on the DA type
-/// - For public DA types (like Celestia), verify commitments against the DA layer
+    // 1 + 1 for Point + nBlobs
 /// - For Private DA, skip verification as we do now
-pub fn skip_to_message_offset(ref input_iter: SpanIter<felt252>, use_kzg_da: felt252) {
-    if use_kzg_da == 0 {
-        return;
-    }
+pub fn deserialize_kzg_da(ref input_iter: SpanIter<felt252>) -> bool {
+    // Read KZG commitments and point evaluations for EIP-4844 blob data.
+    // This supports Starknet v0.13.1's EIP-4844 integration, which enables more efficient
+    // data availability through KZG polynomial commitments. For details, see:
+    // https://community.starknet.io/t/starknet-v0-13-1-eip4844-support-more-fee-reductions-stability-quality-of-life/112951#p-2353973-eip4844-support-1
 
-    // Point + nBlobs
+    // 1 + 1 for Point + nBlobs
     let n_blobs_header = read_segment(ref input_iter, 1 + 1);
     let n_blobs: usize = (*n_blobs_header[KZG_N_BLOBS_OFFSET]).try_into().expect('Invalid n_blobs');
 
     let _commitments = read_segment(ref input_iter, 2 * n_blobs);
     let _evaluations = read_segment(ref input_iter, 2 * n_blobs);
+    return true;
 }
 
 /// Custom deserialization function, inspired by
@@ -132,15 +137,13 @@ pub fn deserialize_os_output(
 
     if use_kzg_da_enabled {
         assert!(*use_kzg_da == 1, "KZG DA is not supported yet");
+        // Skip kzg blob commitments and point evaluations
+        let _ = deserialize_kzg_da(ref input_iter);
     } else {
         assert!(use_kzg_da.is_zero(), "KZG DA is not supported yet");
     }
 
     assert!(full_output.is_zero(), "Full output is not supported");
-
-    // Skip kzg blob commitments and point evaluations
-    skip_to_message_offset(ref input_iter, *use_kzg_da);
-
     let (messages_to_l1, messages_to_l2) = deserialize_messages(ref input_iter);
 
     StarknetOsOutput {
