@@ -97,7 +97,7 @@ fn read_segment(ref input_iter: SpanIter<felt252>, segment_length: usize) -> Arr
 /// This could be using:
 /// - An enum AltDaType (e.g., Celestia, Private, etc.)
 /// - Conditional verification logic based on the DA type
-    // 1 + 1 for Point + nBlobs
+// 1 + 1 for Point + nBlobs
 /// - For Private DA, skip verification as we do now
 pub fn deserialize_kzg_da(ref input_iter: SpanIter<felt252>) -> bool {
     // Read KZG commitments and point evaluations for EIP-4844 blob data.
