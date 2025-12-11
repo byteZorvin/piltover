@@ -50,6 +50,7 @@ pub mod messaging_cpt {
     use piltover::messaging::types::{
         MessageHash, MessageToAppchainStatus, MessageToStarknetStatus, Nonce,
     };
+    use piltover::messaging::utils::truncate_payload_for_event;
     use piltover::snos_output::{MessageToAppchain, MessageToStarknet};
     use starknet::ContractAddress;
     use starknet::storage::{
@@ -182,7 +183,17 @@ pub mod messaging_cpt {
                 from, to_address, selector, payload, nonce,
             );
 
-            self.emit(MessageSent { message_hash, from, to: to_address, selector, nonce, payload });
+            self
+                .emit(
+                    MessageSent {
+                        message_hash,
+                        from,
+                        to: to_address,
+                        selector,
+                        nonce,
+                        payload: truncate_payload_for_event(payload, 2),
+                    },
+                );
 
             self.sn_to_appc_messages.write(message_hash, MessageToAppchainStatus::Pending(nonce));
             (message_hash, nonce)
@@ -220,7 +231,12 @@ pub mod messaging_cpt {
 
             self
                 .emit(
-                    MessageConsumed { message_hash, from: from_address, to: to_address, payload },
+                    MessageConsumed {
+                        message_hash,
+                        from: from_address,
+                        to: to_address,
+                        payload: truncate_payload_for_event(payload, 0),
+                    },
                 );
 
             self.appc_to_sn_messages.write(message_hash, count - 1);
@@ -258,7 +274,12 @@ pub mod messaging_cpt {
             self
                 .emit(
                     MessageCancellationStarted {
-                        message_hash, from, to: to_address, selector, payload, nonce,
+                        message_hash,
+                        from,
+                        to: to_address,
+                        selector,
+                        payload: truncate_payload_for_event(payload, 2),
+                        nonce,
                     },
                 );
 
@@ -296,7 +317,12 @@ pub mod messaging_cpt {
             self
                 .emit(
                     MessageCanceled {
-                        message_hash, from, to: to_address, selector, payload, nonce,
+                        message_hash,
+                        from,
+                        to: to_address,
+                        selector,
+                        payload: truncate_payload_for_event(payload, 2),
+                        nonce,
                     },
                 );
 
@@ -377,7 +403,15 @@ pub mod messaging_cpt {
 
                         let message_hash = hash::compute_message_hash_appc_to_sn(from, to, payload);
 
-                        self.emit(MessageToStarknetReceived { message_hash, from, to, payload });
+                        self
+                            .emit(
+                                MessageToStarknetReceived {
+                                    message_hash,
+                                    from,
+                                    to,
+                                    payload: truncate_payload_for_event(payload, 0),
+                                },
+                            );
 
                         let ref_count = self.appc_to_sn_messages.read(message_hash);
                         self.appc_to_sn_messages.write(message_hash, ref_count + 1);
@@ -424,7 +458,12 @@ pub mod messaging_cpt {
                         self
                             .emit(
                                 MessageToAppchainSealed {
-                                    message_hash, from, to, selector, payload, nonce,
+                                    message_hash,
+                                    from,
+                                    to,
+                                    selector,
+                                    payload: truncate_payload_for_event(payload, 2),
+                                    nonce,
                                 },
                             );
                     },
