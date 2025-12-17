@@ -33,16 +33,5 @@ pub fn truncate_payload_for_event(payload: Span<felt252>, skip: usize) -> Span<f
         return payload;
     }
 
-    let mut truncated = array![];
-    let mut i = 0_usize;
-
-    loop {
-        if i >= max_payload_len {
-            break;
-        }
-        truncated.append((*payload[i]));
-        i += 1;
-    }
-
-    truncated.span()
+    payload.slice(0, max_payload_len)
 }
