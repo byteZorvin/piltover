@@ -7,7 +7,7 @@ use openzeppelin::access::ownable::interface::{
 use piltover::appchain::appchain::{Event, LogStateTransitionFact, LogStateUpdate};
 //! Appchain testing.
 //!
-use piltover::config::tests::constants as c;
+use super::constants as c;
 use piltover::config::{IConfigDispatcher, IConfigDispatcherTrait, ProgramInfo};
 use piltover::fact_registry::IFactRegistryDispatcher;
 use piltover::interface::{IAppchainDispatcher, IAppchainDispatcherTrait};
