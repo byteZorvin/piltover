@@ -8,6 +8,7 @@ use piltover::messaging::messaging_cpt::{
     MessageSent,
 };
 use piltover::messaging::types::{MessageToAppchainStatus, MessageToStarknetStatus};
+use piltover::messaging::utils::truncate_payload_for_event;
 use piltover::messaging::{
     IMessaging, IMessagingDispatcher, IMessagingDispatcherTrait, hash, messaging_cpt,
     messaging_mock,
@@ -563,4 +564,31 @@ fn consume_message_from_appchain_invalid_to_consume() {
     // Ensure the caller address inside the mock function is correctly set.
     snf::start_cheat_caller_address(to, to);
     mock.consume_message_from_appchain(from, payload);
+}
+
+#[test]
+fn send_message_too_long_for_event() {
+    let (mock, mut spy) = deploy_mock();
+
+    let from = c::SPENDER;
+    let to = c::RECIPIENT;
+    let selector = selector!("func1");
+
+    let mut payload = array![];
+    for i in 0_u16..510_u16 {
+        payload.append(i.into());
+    }
+
+    snf::start_cheat_caller_address(mock.contract_address, from);
+    let (message_hash, nonce) = mock.send_message_to_appchain(to, selector, payload.span());
+
+    assert(message_hash.is_non_zero(), 'invalid message hash');
+    assert(nonce == 0, 'invalid nonce');
+
+    let truncated_payload = truncate_payload_for_event(payload.span(), 2);
+    let expected_event = MessageSent {
+        message_hash, from, to, selector, nonce: nonce, payload: truncated_payload,
+    };
+
+    spy.assert_emitted(@array![(mock.contract_address, Event::MessageSent(expected_event))]);
 }

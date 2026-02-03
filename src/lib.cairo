@@ -26,6 +26,7 @@ pub mod messaging {
     pub mod interface;
     pub mod mock;
     pub mod types;
+    pub mod utils;
 
     pub use component::messaging_cpt;
     #[cfg(feature: 'messaging_test')]
@@ -36,6 +37,7 @@ pub mod messaging {
     #[cfg(test)]
     pub mod tests {
         pub mod test_messaging;
+        pub mod test_utils;
     }
 }
 
