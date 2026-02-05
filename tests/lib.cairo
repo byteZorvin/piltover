@@ -1,4 +1,4 @@
 //! Testing module.
 //!
-mod test_appchain;
 mod constants;
+mod test_appchain;

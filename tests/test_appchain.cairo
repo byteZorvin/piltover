@@ -5,9 +5,6 @@ use openzeppelin::access::ownable::interface::{
     IOwnableTwoStepDispatcher, IOwnableTwoStepDispatcherTrait,
 };
 use piltover::appchain::appchain::{Event, LogStateTransitionFact, LogStateUpdate};
-//! Appchain testing.
-//!
-use super::constants as c;
 use piltover::config::{IConfigDispatcher, IConfigDispatcherTrait, ProgramInfo};
 use piltover::fact_registry::IFactRegistryDispatcher;
 use piltover::interface::{IAppchainDispatcher, IAppchainDispatcherTrait};
@@ -16,6 +13,9 @@ use piltover::snos_output::{StarknetOsOutput, deserialize_os_output};
 use snforge_std as snf;
 use snforge_std::{ContractClassTrait, EventSpy, EventSpyAssertionsTrait};
 use starknet::ContractAddress;
+//! Appchain testing.
+//!
+use super::constants as c;
 /// Deploys the appchain contract.
 fn deploy_with_owner(owner: ContractAddress) -> (IAppchainDispatcher, EventSpy) {
     let contract = match snf::declare("appchain").unwrap() {
