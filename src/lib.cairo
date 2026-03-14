@@ -13,7 +13,7 @@ pub mod config {
     pub use interface::{IConfig, IConfigDispatcher, IConfigDispatcherTrait, ProgramInfo};
     pub use mock::config_mock;
 
-    #[cfg(target: 'test')]
+    #[cfg(test)]
     pub mod tests {
         pub mod constants;
         pub mod test_config;
