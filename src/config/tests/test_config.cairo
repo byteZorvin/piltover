@@ -97,14 +97,14 @@ fn config_set_program_info_ok() {
     assert(mock.get_program_info() == program_info, 'expect correct hashes');
 
     // Owner can update the info again.
-    let program_info2 = ProgramInfo {
+    let program_info = ProgramInfo {
         bootloader_program_hash: 0x11,
         snos_config_hash: 0x22,
         snos_program_hash: 0x33,
         layout_bridge_program_hash: 0x44,
     };
-    mock.set_program_info(program_info2);
-    assert(mock.get_program_info() == program_info2, 'expect updated hashes');
+    mock.set_program_info(program_info);
+    assert(mock.get_program_info() == program_info, 'expect updated hashes');
 }
 
 #[test]
